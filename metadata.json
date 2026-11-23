@@ -1,0 +1,6 @@
+{
+  "name": "தமிழ் ஞானம் | TAMIL WISDOM",
+  "description": "Free digital learning sanctuary for Thiruvalluvar's Thirukkural and Swamiji's Vedanta teachings — audio, video, PPT, study materials, quizzes, and guided meditation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

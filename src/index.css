@@ -1,0 +1,58 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --tw-bg-ivory: #F7F0DF;
+    --tw-bg-sandalwood: #EFE4CC;
+    --tw-bg-card: #FCF8EE;
+    --tw-primary-maroon: #762B35;
+    --tw-secondary-gold: #C49A45;
+    --tw-accent-saffron: #D99B38;
+    --tw-text-brown: #493126;
+    --tw-text-muted: #725648;
+  }
+
+  .dark {
+    --tw-bg-ivory: #1A1412;
+    --tw-bg-sandalwood: #231B18;
+    --tw-bg-card: #2A201C;
+    --tw-primary-maroon: #A94450;
+    --tw-secondary-gold: #D4AA56;
+    --tw-accent-saffron: #E6A946;
+    --tw-text-brown: #F4EBD7;
+    --tw-text-muted: #CBBBA4;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', 'Noto Sans Tamil', system-ui, sans-serif;
+    background-color: var(--tw-bg-ivory);
+    color: var(--tw-text-brown);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Cormorant Garamond', 'Noto Serif Tamil', Georgia, serif;
+    text-wrap: balance;
+  }
+
+  .font-tamil-serif {
+    font-family: 'Noto Serif Tamil', 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .font-mono-num {
+    font-family: 'IBM Plex Mono', monospace;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Subtle kolam geometric border motif */
+.kolam-pattern-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(196, 154, 69, 0.14) 1px, transparent 0);
+  background-size: 28px 28px;
+}
+
+.dark .kolam-pattern-bg {
+  background-image: radial-gradient(circle at 1px 1px, rgba(212, 170, 86, 0.11) 1px, transparent 0);
+  background-size: 28px 28px;
+}

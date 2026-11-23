@@ -1,0 +1,83 @@
+import { NextFunction, Request, Response } from 'express';
+import { DecodedIdToken } from 'firebase-admin/auth';
+import { adminAuth } from '../lib/firebase-admin.ts';
+import { getOrCreateUser } from '../db/users.ts';
+
+export interface AuthUserRecord {
+  id: number;
+  uid: string;
+  email: string;
+  displayName: string | null;
+  role: string;
+  preferredLang: string;
+}
+
+export interface AuthRequest extends Request {
+  firebaseUser?: DecodedIdToken;
+  dbUser?: AuthUserRecord;
+}
+
+export const optionalAuth = async (req: AuthRequest, _res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return next();
+  }
+
+  const token = authHeader.split('Bearer ')[1];
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    req.firebaseUser = decodedToken;
+    if (decodedToken.email) {
+      req.dbUser = await getOrCreateUser(
+        decodedToken.uid,
+        decodedToken.email,
+        decodedToken.name
+      );
+    }
+  } catch (error) {
+    console.warn('Optional auth token could not be verified:', error);
+  }
+  next();
+};
+
+export const requireAuth = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Unauthorized: Missing token' });
+  }
+
+  const token = authHeader.split('Bearer ')[1];
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    req.firebaseUser = decodedToken;
+    const email = decodedToken.email || `${decodedToken.uid}@user.local`;
+    req.dbUser = await getOrCreateUser(decodedToken.uid, email, decodedToken.name);
+    next();
+  } catch (error) {
+    console.error('Error verifying Firebase ID token:', error);
+    return res.status(401).json({ error: 'Unauthorized: Invalid token' });
+  }
+};
+
+export const requireEditorOrAdmin = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  await requireAuth(req, res, () => {
+    const role = req.dbUser?.role;
+    if (role !== 'admin' && role !== 'editor') {
+      return res.status(403).json({ error: 'Forbidden: Editor or Admin role required' });
+    }
+    next();
+  });
+};
+
+export const requireAdmin = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  await requireAuth(req, res, () => {
+    if (req.dbUser?.role !== 'admin') {
+      return res.status(403).json({ error: 'Forbidden: Admin role required' });
+    }
+    next();
+  });
+};
